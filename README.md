@@ -73,7 +73,7 @@ The same list and protocol for Source games. The plugin adds the reservation fla
 1. Download `lobbyverse_reserved.smx` from the [releases](https://github.com/LobbyVerse/plugins/releases) and put it
    in `addons/sourcemod/plugins/`. It loads on the next map change, or at once with `sm plugins load lobbyverse_reserved`.
 2. Keep `reservedslots.smx` loaded (it ships with SourceMod) and set `sm_reserved_slots 1` (or the number of slots to
-   keep) in `cfg/sourcemod/reservedslots.cfg`. The plugin warns in the server console when either is missing.
+   keep) in `cfg/sourcemod/sourcemod.cfg`. The plugin warns in the server console when either is missing.
 3. Claim the server on LobbyVerse, save its RCON password, and add your players on the
    [Reserved slots](https://lobbyverse.com/account/reserved) page.
 
