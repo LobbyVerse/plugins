@@ -7,7 +7,7 @@ connection the server owner already set up.
 | Plugin | For | Status |
 | --- | --- | --- |
 | [Reserved slots](amxmodx/scripting/lobbyverse_reserved.sma) | AMX Mod X 1.9+ (CS 1.6, CZ, DoD and other GoldSrc mods) | 1.0.0 |
-| Reserved slots | SourceMod | planned |
+| [Reserved slots](sourcemod/scripting/lobbyverse_reserved.sp) | SourceMod 1.11+ (CS:S, TF2, Left 4 Dead 2 and other Source games; not CS2) | 1.0.0 |
 
 ## Reserved slots for AMX Mod X
 
@@ -60,8 +60,33 @@ Compile with the `amxxpc` that ships with AMX Mod X (1.10 used for the release):
 amxxpc lobbyverse_reserved.sma -o lobbyverse_reserved.amxx
 ```
 
-Each release lists the SHA-256 of its `.amxx`, the same one [lobbyverse.com/owners/plugin](https://lobbyverse.com/owners/plugin)
+Each release lists the SHA-256 of its build, the same one [lobbyverse.com/owners/plugin](https://lobbyverse.com/owners/plugin)
 shows.
+
+## Reserved slots for SourceMod
+
+The same list and protocol for Source games. The plugin adds the reservation flag (`a`) in
+`OnClientPostAdminFilter`, before SourceMod's own `reservedslots.smx` decides, so load order doesn't matter.
+
+### Install
+
+1. Download `lobbyverse_reserved.smx` from the [releases](https://github.com/LobbyVerse/plugins/releases) and put it
+   in `addons/sourcemod/plugins/`. It loads on the next map change, or at once with `sm plugins load lobbyverse_reserved`.
+2. Keep `reservedslots.smx` loaded (it ships with SourceMod) and set `sm_reserved_slots 1` (or the number of slots to
+   keep) in `cfg/sourcemod/reservedslots.cfg`. The plugin warns in the server console when either is missing.
+3. Claim the server on LobbyVerse, save its RCON password, and add your players on the
+   [Reserved slots](https://lobbyverse.com/account/reserved) page.
+
+The Source console splits command arguments at colons, so the plugin reads `lv_reserved_add`'s SteamIDs from the
+raw argument string; quoted or not, they work.
+
+### Build from source
+
+```
+spcomp lobbyverse_reserved.sp -o lobbyverse_reserved.smx
+```
+
+The release build uses SourceMod 1.12's compiler.
 
 ## Feedback
 
