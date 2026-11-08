@@ -7,7 +7,8 @@ connection the server owner already set up.
 | Plugin | For | Status |
 | --- | --- | --- |
 | [Reserved slots](amxmodx/scripting/lobbyverse_reserved.sma) | AMX Mod X 1.9+ (CS 1.6, CZ, DoD and other GoldSrc mods) | 1.0.0 |
-| [Reserved slots](sourcemod/scripting/lobbyverse_reserved.sp) | SourceMod 1.11+ (CS:S, TF2, Left 4 Dead 2 and other Source games; not CS2) | 1.0.0 |
+| [Reserved slots](sourcemod/scripting/lobbyverse_reserved.sp) | SourceMod 1.11+ (CS:S, TF2, Left 4 Dead 2 and other Source games) | 1.0.0 |
+| [Reserved slots](counterstrikesharp/lobbyverse_reserved.cs) | CounterStrikeSharp (CS2) | 1.0.0 |
 
 ## Reserved slots for AMX Mod X
 
@@ -87,6 +88,35 @@ spcomp lobbyverse_reserved.sp -o lobbyverse_reserved.smx
 ```
 
 The release build uses SourceMod 1.12's compiler.
+
+## Reserved slots for CS2 (CounterStrikeSharp)
+
+The same list and protocol for CS2. CS2 has no reserved-slots plugin of its own, so this one keeps the slots, like
+SourceMod's `sm_reserve_type 0`: of the server's slots, the last `ReservedSlots` are reserved, and a player who isn't on
+your list (and has no `@css/reservation` permission) and takes one is kicked with a message. Players on the list are
+never kicked.
+
+### Install
+
+1. Install [Metamod:Source 2](https://www.sourcemm.net/downloads.php) and
+   [CounterStrikeSharp](https://github.com/roflmuffin/CounterStrikeSharp/releases) (the `with-runtime` build).
+2. Download `lobbyverse_reserved_cs2.zip` from the [releases](https://github.com/LobbyVerse/plugins/releases) and
+   unzip it into `addons/counterstrikesharp/plugins/` (it makes a `LobbyVerseReserved` folder). It loads on the next
+   map change, or at once with `css_plugins load LobbyVerseReserved`.
+3. Set `ReservedSlots` in `addons/counterstrikesharp/configs/plugins/LobbyVerseReserved/LobbyVerseReserved.json`
+   (1 by default; the file appears on the first load).
+4. Claim the server on LobbyVerse, save its RCON password, and add your players on the
+   [Reserved slots](https://lobbyverse.com/account/reserved) page.
+
+CS2 publishes no server rules, so LobbyVerse finds the plugin with its first push over RCON.
+
+### Build from source
+
+```
+cd counterstrikesharp && dotnet build -c Release
+```
+
+The release is built with the .NET 10 SDK against CounterStrikeSharp.API 1.0.371.
 
 ## Feedback
 
