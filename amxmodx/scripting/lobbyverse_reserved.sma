@@ -20,6 +20,10 @@
  *   lv_reserved_status                print the count and the seconds since the last push
  * Every command answers one line starting "lv_reserved: ".
  *
+ * Protocol v2 adds (also a server command):
+ *   lv_tell <userid> <text>           print "[LobbyVerse] text" in that one player's chat (chat command answers);
+ *                                     answers "lv_tell: ok" or "lv_tell: no player"
+ *
  * MIT License, (c) 2026 Groovy Ape, LLC.
  */
 
@@ -27,9 +31,9 @@
 #include <celltrie>
 
 #define PLUGIN  "LobbyVerse Reserved Slots"
-#define VERSION "1.0.0"
+#define VERSION "2.0.0"
 #define AUTHOR  "LobbyVerse"
-#define PROTOCOL "1"
+#define PROTOCOL "2"
 
 #define MAX_PER_ADD 20
 #define MAX_LIST 1000
@@ -52,6 +56,7 @@ public plugin_init()
 	register_srvcmd("lv_reserved_end", "cmdEnd");
 	register_srvcmd("lv_reserved_clear", "cmdClear");
 	register_srvcmd("lv_reserved_status", "cmdStatus");
+	register_srvcmd("lv_tell", "cmdTell");
 
 	g_list = TrieCreate();
 }
@@ -180,6 +185,26 @@ public cmdStatus()
 {
 	new ago = g_lastPush ? get_systime() - g_lastPush : -1;
 	server_print("lv_reserved: status v%s %d %d", PROTOCOL, g_count, ago);
+	return PLUGIN_HANDLED;
+}
+
+// lv_tell <userid> <text>: the rest of the line after the userid is the text
+public cmdTell()
+{
+	new line[256], userid[12];
+	read_args(line, charsmax(line));
+	trim(line);
+	strtok(line, userid, charsmax(userid), line, charsmax(line), ' ', 1);
+	trim(line);
+
+	new id = find_player("k", str_to_num(userid));
+	if (!id || !line[0] || is_user_bot(id))
+	{
+		server_print("lv_tell: no player");
+		return PLUGIN_HANDLED;
+	}
+	client_print(id, print_chat, "[LobbyVerse] %s", line);
+	server_print("lv_tell: ok");
 	return PLUGIN_HANDLED;
 }
 

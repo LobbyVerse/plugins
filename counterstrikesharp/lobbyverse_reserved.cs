@@ -22,6 +22,10 @@
  *   lv_reserved_status                print the count and the seconds since the last push
  * Every command answers one line starting "lv_reserved: ".
  *
+ * Protocol v2 adds (also a server command):
+ *   lv_tell <userid> <text>           print "[LobbyVerse] text" in that one player's chat (chat command answers);
+ *                                     answers "lv_tell: ok" or "lv_tell: no player"
+ *
  * MIT License, (c) 2026 Groovy Ape, LLC.
  */
 
@@ -46,11 +50,11 @@ public class ReservedConfig : BasePluginConfig
 public class LobbyVerseReserved : BasePlugin, IPluginConfig<ReservedConfig>
 {
     public override string ModuleName => "LobbyVerse Reserved Slots";
-    public override string ModuleVersion => "1.0.0";
+    public override string ModuleVersion => "2.0.0";
     public override string ModuleAuthor => "LobbyVerse";
     public override string ModuleDescription => "Reserved slots from your list on LobbyVerse";
 
-    private const string Protocol = "1";
+    private const string Protocol = "2";
     private const int MaxPerAdd = 20;
     private const int MaxList = 1000;
     private const ulong Steam64Base = 76561197960265728UL;
@@ -162,6 +166,25 @@ public class LobbyVerseReserved : BasePlugin, IPluginConfig<ReservedConfig>
     {
         var ago = _lastPush.HasValue ? (int)(DateTime.UtcNow - _lastPush.Value).TotalSeconds : -1;
         info.ReplyToCommand($"lv_reserved: status v{Protocol} {_list.Count} {ago}");
+    }
+
+    [ConsoleCommand("lv_tell", "LobbyVerse: a chat line for one player")]
+    [CommandHelper(whoCanExecute: CommandUsage.SERVER_ONLY)]
+    public void OnTell(CCSPlayerController? caller, CommandInfo info)
+    {
+        var line = info.ArgString.Trim();
+        var space = line.IndexOf(' ');
+        var userid = -1;
+        var player = space > 0 && int.TryParse(line[..space], out userid) ? Utilities.GetPlayerFromUserid(userid) : null;
+        var text = space > 0 ? line[(space + 1)..].Trim() : "";
+        // The lookup maps a userid onto a slot, so an empty slot or another player's can come back: check it's this one
+        if (player is null || !player.IsValid || player.IsBot || player.UserId != userid || player.Connected != PlayerConnectedState.Connected || text.Length == 0)
+        {
+            info.ReplyToCommand("lv_tell: no player");
+            return;
+        }
+        player.PrintToChat($"[LobbyVerse] {text}");
+        info.ReplyToCommand("lv_tell: ok");
     }
 
     // STEAM_0:X:Y or STEAM_1:X:Y, X a single 0 or 1, Y digits, as the other LobbyVerse plugins take them

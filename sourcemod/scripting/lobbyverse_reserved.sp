@@ -23,6 +23,10 @@
  *   lv_reserved_status                print the count and the seconds since the last push
  * Every command answers one line starting "lv_reserved: ".
  *
+ * Protocol v2 adds (also a server command):
+ *   lv_tell <userid> <text>           print "[LobbyVerse] text" in that one player's chat (chat command answers);
+ *                                     answers "lv_tell: ok" or "lv_tell: no player"
+ *
  * MIT License, (c) 2026 Groovy Ape, LLC.
  */
 
@@ -31,8 +35,8 @@
 #pragma semicolon 1
 #pragma newdecls required
 
-#define PLUGIN_VERSION "1.0.0"
-#define PROTOCOL "1"
+#define PLUGIN_VERSION "2.0.0"
+#define PROTOCOL "2"
 
 #define MAX_PER_ADD 20
 #define MAX_LIST 1000
@@ -64,6 +68,7 @@ public void OnPluginStart()
 	RegServerCmd("lv_reserved_end", Cmd_End, "LobbyVerse: swap the new list in");
 	RegServerCmd("lv_reserved_clear", Cmd_Clear, "LobbyVerse: empty the list");
 	RegServerCmd("lv_reserved_status", Cmd_Status, "LobbyVerse: show the list's state");
+	RegServerCmd("lv_tell", Cmd_Tell, "LobbyVerse: a chat line for one player");
 
 	g_list = new StringMap();
 }
@@ -190,6 +195,32 @@ public Action Cmd_Status(int args)
 {
 	int ago = g_lastPush ? GetTime() - g_lastPush : -1;
 	PrintToServer("lv_reserved: status v%s %d %d", PROTOCOL, g_count, ago);
+	return Plugin_Handled;
+}
+
+// lv_tell <userid> <text>: the raw argument string, since the Source console splits text at colons
+public Action Cmd_Tell(int args)
+{
+	char line[256];
+	GetCmdArgString(line, sizeof(line));
+	TrimString(line);
+	int space = FindCharInString(line, ' ');
+	int client = 0;
+	if (space > 0)
+	{
+		line[space] = '\0';
+		client = GetClientOfUserId(StringToInt(line));
+	}
+	if (client == 0 || !IsClientInGame(client) || IsFakeClient(client) || line[space + 1] == '\0')
+	{
+		PrintToServer("lv_tell: no player");
+		return Plugin_Handled;
+	}
+	char text[256];
+	strcopy(text, sizeof(text), line[space + 1]);
+	TrimString(text);
+	PrintToChat(client, "[LobbyVerse] %s", text);
+	PrintToServer("lv_tell: ok");
 	return Plugin_Handled;
 }
 

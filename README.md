@@ -6,9 +6,9 @@ connection the server owner already set up.
 
 | Plugin | For | Status |
 | --- | --- | --- |
-| [Reserved slots](amxmodx/scripting/lobbyverse_reserved.sma) | AMX Mod X 1.9+ (CS 1.6, CZ, DoD and other GoldSrc mods) | 1.0.0 |
-| [Reserved slots](sourcemod/scripting/lobbyverse_reserved.sp) | SourceMod 1.11+ (CS:S, TF2, Left 4 Dead 2 and other Source games) | 1.0.0 |
-| [Reserved slots](counterstrikesharp/lobbyverse_reserved.cs) | CounterStrikeSharp (CS2) | 1.0.0 |
+| [Reserved slots](amxmodx/scripting/lobbyverse_reserved.sma) | AMX Mod X 1.9+ (CS 1.6, CZ, DoD and other GoldSrc mods) | 2.0.0 |
+| [Reserved slots](sourcemod/scripting/lobbyverse_reserved.sp) | SourceMod 1.11+ (CS:S, TF2, Left 4 Dead 2 and other Source games) | 2.0.0 |
+| [Reserved slots](counterstrikesharp/lobbyverse_reserved.cs) | CounterStrikeSharp (CS2) | 2.0.0 |
 
 ## Reserved slots for AMX Mod X
 
@@ -38,7 +38,7 @@ every change, and again every hour (a restarted server starts with an empty list
 It opens no connection, reads and writes no file, never kicks or bans anyone, and never removes a flag `users.ini`
 gave. The list lives in memory only.
 
-### Protocol (v1)
+### Protocol (v2)
 
 Server commands, so only RCON and the server console can use them. Every command answers one line starting with
 `lv_reserved: `.
@@ -50,6 +50,7 @@ Server commands, so only RCON and the server console can use them. Every command
 | `lv_reserved_end <count>` | Swap the new list in, only when it holds exactly `<count>` SteamIDs. Answers `ok N` or `mismatch`. |
 | `lv_reserved_clear` | Empty the list. |
 | `lv_reserved_status` | Print the protocol version, the count and the seconds since the last push. |
+| `lv_tell <userid> <text>` | (v2) Print `[LobbyVerse] text` in one player's chat, for LobbyVerse's chat commands. Answers `lv_tell: ok` or `lv_tell: no player`. |
 
 SteamIDs travel in the legacy `STEAM_0:X:Y` form because Pawn cells are 32 bits and can't hold a SteamID64.
 
